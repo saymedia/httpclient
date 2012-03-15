@@ -1,7 +1,5 @@
 from setuptools import setup
 
-import httpclient.__version__
-
 setup(
     name='httpclient',
     version='0.01',
