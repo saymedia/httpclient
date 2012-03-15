@@ -4,7 +4,7 @@ import httpclient.__version__
 
 setup(
     name='httpclient',
-    version=__version__,
+    version='0.01',
     description='HTTP Client library for Python',
     long_description=open('README.rst').read(),
     author='Franck Cuny',
