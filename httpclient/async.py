@@ -1,6 +1,7 @@
 from Queue import Queue
 from threading import Thread, Event
 from httpclient import HTTPClient
+from sys import exc_info
 
 
 ## XXX header + set for content
@@ -10,11 +11,21 @@ class ResponseAsync(object):
         self._callback = callback
         self._flag = Event()
 
-    def fulfill(self, response):
+    def fulfill(self, response, caught_exc_info=None):
         self._response = response
-        if self._callback is not None:
-            self._callback(self)
-        self._flag.set()
+        try:
+            self.caught_exc_info = caught_exc_info
+            if caught_exc_info:
+                self.exception = caught_exc_info[1]
+            if self._callback is not None:
+                try:
+                    self._callback(response)
+                except Exception, e:
+                    if self.caught_exc_info is None:
+                        self.caught_exc_info = exc_info()
+                        self.exception = self.caught_exc_info[1]
+        finally:
+            self._flag.set()
 
     def done(self):
         return self._flag.is_set()
@@ -34,10 +45,14 @@ class HTTPWorker(Thread):
         self._handle = handle
 
     def run(self):
+        i = 0
         while not self._http._has_work():
             (promise, request) = self._http._get_work()
-            response = self._handle.request(request)
-            promise.fulfill(response)
+            try:
+                response = self._handle.request(request)
+                promise.fulfill(response)
+            except Exception, e:
+                promise.fulfill(None, exc_info())
         self._http._remove_worker(self)
 
 
@@ -49,7 +64,7 @@ class HTTPClientAsync(HTTPClient):
 
     def request(self, request, callback=None):
         if callback is not None:
-            promise = callback
+            promise = ResponseAsync(callback=callback)
         else:
             promise = ResponseAsync()
 

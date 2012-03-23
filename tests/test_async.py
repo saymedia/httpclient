@@ -46,8 +46,9 @@ class ResponseTest(TestCase):
     def test_callback(self):
         def callback(response):
             response.called = True
+            self.assertEqual(response.status, 200)
 
-        response = ResponseAsync(callback)
+        response = ResponseAsync(callback=callback)
         response.fulfill(Response(200))
         self.assertEqual(response.status, 200)
         self.assertTrue(response.called)
