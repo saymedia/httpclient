@@ -156,11 +156,9 @@ class HTTPClient(object):
         except Exception, e:
             raise e
 
-        # XXX fix in Url
-        path = str(request.url.path) or '/'
         r = conn.urlopen(
             method=request.method,
-            url=path,
+            url=url.abs_path_query,
             headers=headers,
             timeout=self.timeout,
             body=request.content,
