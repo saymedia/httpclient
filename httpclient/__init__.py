@@ -26,10 +26,10 @@ __copyright__ = 'Copyright 2012 Franck Cuny'
 
 class HTTPClient(object):
 
-    def __init__(self, agent=None, timeout=10, keep_alive=1,
+    def __init__(self, agent=None, timeout=60, keep_alive=1,
             default_headers={}, max_redirect=7, with_exceptions=False):
 
-        self.timeout = 60
+        self.timeout = timeout
         self.max_redirect = max_redirect
         self._handlers = Handlers()
         self._with_exceptions = with_exceptions
